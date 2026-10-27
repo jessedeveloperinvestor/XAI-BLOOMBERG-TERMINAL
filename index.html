@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>GROK // BB-STYLE TERMINAL</title>
+<title>XAI // BB-STYLE TERMINAL</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <style>
 :root{--bg:#000;--panel:#0a0a0a;--panel2:#111;--border:#2a2a2a;--border-bright:#3d3d3d;--text:#e8e8e8;--muted:#8a8a8a;--amber:#ff8800;--amber-dim:#cc6e00;--amber-bright:#ffaa33;--yellow:#ffcc00;--green:#00c853;--red:#ff1744;--red-dim:#c62828;--blue:#2979ff;--cyan:#00e5ff;--purple:#b388ff}
@@ -81,9 +81,80 @@ label{display:block;font-size:9px;color:var(--amber-dim);margin-bottom:2px;text-
 .tag.war{background:#3d0000;color:#ff5252}
 .tag.br{background:#003322;color:#69f0ae}
 .tag.global{background:#001a33;color:#40c4ff}
+
+/* Tight Chart Grid & SuperDOM Styles */
+.chart-grid-layout {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 8px;
+}
+@media(max-width: 1100px) {
+  .chart-grid-layout {
+    grid-template-columns: 1fr;
+  }
+}
+.dom-column {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.superdom-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 10px;
+  font-variant-numeric: tabular-nums;
+  table-layout: fixed;
+}
+.superdom-table th {
+  padding: 3px 4px;
+  text-align: center;
+  font-size: 9px;
+  background: #111;
+  border-bottom: 1px solid var(--border-bright);
+}
+.superdom-table td {
+  padding: 2px 4px;
+  height: 20px;
+  text-align: center;
+  border-bottom: 1px solid #141414;
+  position: relative;
+}
+.superdom-table tr.ask-row td.price-cell { color: var(--red); background: rgba(255,23,68,0.05); }
+.superdom-table tr.bid-row td.price-cell { color: var(--green); background: rgba(0,200,83,0.05); }
+.superdom-table tr.current-price td { background: #3d3100 !important; font-weight: 700; color: var(--yellow) !important; border-top: 1px solid var(--amber); border-bottom: 1px solid var(--amber); }
+.dom-bar-bg {
+  position: absolute;
+  top: 1px;
+  bottom: 1px;
+  opacity: 0.25;
+  pointer-events: none;
+}
+.dom-bar-ask { right: 0; background: var(--red); }
+.dom-bar-bid { left: 0; background: var(--green); }
+.dom-bar-vol { left: 0; background: var(--cyan); opacity: 0.2; }
+.vp-container {
+  max-height: 200px;
+  overflow-y: auto;
+}
+.vp-row {
+  display: flex;
+  align-items: center;
+  font-size: 9px;
+  gap: 4px;
+  padding: 1px 0;
+  border-bottom: 1px solid #121212;
+}
+.vp-price { width: 55px; color: var(--muted); text-align: right; font-variant-numeric: tabular-nums; }
+.vp-bar-wrapper { flex: 1; background: #080808; height: 12px; position: relative; border-radius: 2px; overflow: hidden; display: flex; }
+.vp-bar-buy { background: var(--green); opacity: 0.7; height: 100%; }
+.vp-bar-sell { background: var(--red); opacity: 0.7; height: 100%; }
+.vp-vol-text { width: 45px; font-size: 8px; color: var(--amber); text-align: right; font-variant-numeric: tabular-nums; }
+.vp-poc { background: #2b2200; border: 1px solid var(--yellow); }
+.vp-poc .vp-price { color: var(--yellow); font-weight: 700; }
+
 #chartContainer,#stochContainer,#stdContainer,#deltaContainer{position:relative;background:#000}
-#chartContainer{height:280px}
-#stochContainer,#stdContainer,#deltaContainer{height:110px}
+#chartContainer{height:250px}
+#stochContainer,#stdContainer,#deltaContainer{height:100px}
 .hidden{display:none!important}
 .flex{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .mt-1{margin-top:6px}
@@ -115,7 +186,7 @@ footer{text-align:center;padding:6px;color:#444;font-size:9px;border-top:1px sol
 .smc-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:6px;font-size:11px}
 .smc-grid .k{color:var(--muted)}
 .smc-grid .v{color:var(--yellow);font-weight:700}
-::-webkit-scrollbar{width:8px;height:8px}
+::-webkit-scrollbar{width:6px;height:6px}
 ::-webkit-scrollbar-track{background:#0a0a0a}
 ::-webkit-scrollbar-thumb{background:#333}
 ::-webkit-scrollbar-thumb:hover{background:var(--amber-dim)}
@@ -123,7 +194,7 @@ footer{text-align:center;padding:6px;color:#444;font-size:9px;border-top:1px sol
 </head>
 <body>
 <div class="bb-topbar">
-  <span class="logo">GROK</span>
+  <span class="logo">XAI</span>
   <span>MICROSTRUCTURE</span><span class="sep">|</span>
   <span>ORDERFLOW</span><span class="sep">|</span>
   <span>SMC / ICT</span><span class="sep">|</span>
@@ -133,7 +204,7 @@ footer{text-align:center;padding:6px;color:#444;font-size:9px;border-top:1px sol
   <span class="clock" id="bbClock">--:--:--</span>
 </div>
 <header>
-  <div class="title">GROK TERMINAL <span>// LIVE DESK</span></div>
+  <div class="title">XAI TERMINAL <span>// LIVE DESK</span></div>
   <div class="account-bar">
     <div class="metric">ACCT <strong id="accSize">100,000</strong></div>
     <div class="metric">DAY P/L <strong id="dayPnl">0.00</strong></div>
@@ -306,7 +377,7 @@ footer{text-align:center;padding:6px;color:#444;font-size:9px;border-top:1px sol
 </section>
 <section id="tab-chart" class="tab hidden">
   <div class="panel">
-    <div class="panel-hd">MULTI-PANEL CHART — PRICE · STOCH · STD DEV · DELTA <span class="right" id="chartMeta">—</span></div>
+    <div class="panel-hd">CHART & MICROSTRUCTURE DESK — MULTI-PANEL · SUPERDOM · VOLUME PROFILE <span class="right" id="chartMeta">—</span></div>
     <div class="panel-body">
       <div class="form-row">
         <div><label>Ticker</label><input id="chartTicker" value="XAUUSD" list="tickerList"/></div>
@@ -314,10 +385,49 @@ footer{text-align:center;padding:6px;color:#444;font-size:9px;border-top:1px sol
         <div><label>Interval</label><select id="chartInterval"><option value="15m">15M</option><option value="1h" selected>1H</option><option value="1d">1D</option></select></div>
         <div style="display:flex;align-items:flex-end"><button class="btn go" id="btnChart">GO  CHART</button></div>
       </div>
-      <div id="chartContainer" class="mt-1"><canvas id="priceChart"></canvas></div>
-      <div id="stochContainer" class="mt-1"><canvas id="stochChart"></canvas></div>
-      <div id="stdContainer" class="mt-1"><canvas id="stdChart"></canvas></div>
-      <div id="deltaContainer" class="mt-1"><canvas id="deltaChart"></canvas></div>
+
+      <div class="chart-grid-layout mt-1">
+        <!-- Main Charts Column -->
+        <div class="main-chart-column">
+          <div id="chartContainer"><canvas id="priceChart"></canvas></div>
+          <div id="stochContainer" class="mt-1"><canvas id="stochChart"></canvas></div>
+          <div id="stdContainer" class="mt-1"><canvas id="stdChart"></canvas></div>
+          <div id="deltaContainer" class="mt-1"><canvas id="deltaChart"></canvas></div>
+        </div>
+
+        <!-- Tight SuperDOM & Volume Profile Column -->
+        <div class="dom-column">
+          <!-- SuperDOM / Depth of Market Panel -->
+          <div class="panel" style="margin-bottom:0">
+            <div class="panel-hd" style="font-size:10px">SUPERDOM (DEPTH OF MARKET) <span class="right" id="domSpread">SPREAD: --</span></div>
+            <div class="panel-body" style="padding:4px">
+              <table class="superdom-table" id="superDomTable">
+                <thead>
+                  <tr>
+                    <th style="width:28%">ASK VOL</th>
+                    <th style="width:44%">PRICE</th>
+                    <th style="width:28%">BID VOL</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><td colspan="3" class="neutral" style="text-align:center;padding:10px">No DOM Data</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Volume Profile Panel -->
+          <div class="panel" style="margin-bottom:0">
+            <div class="panel-hd" style="font-size:10px">VOLUME PROFILE (SESSION) <span class="right" id="vpPocText">POC: --</span></div>
+            <div class="panel-body" style="padding:4px">
+              <div class="vp-container" id="vpContainer">
+                <div class="neutral" style="text-align:center;padding:10px">No VP Data</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div>
   </div>
 </section>
@@ -335,7 +445,7 @@ footer{text-align:center;padding:6px;color:#444;font-size:9px;border-top:1px sol
         <button class="btn danger" id="btnClear">CLEAR LEDGER</button>
         <input type="file" id="importFile" accept=".json" class="hidden"/>
       </div>
-      <p class="hint">Ledger in localStorage (grok-ledger-data). Export to backup.</p>
+      <p class="hint">Ledger in localStorage (XAI-ledger-data). Export to backup.</p>
       <div id="setStatus" class="status mt-1"></div>
     </div>
   </div>
@@ -348,7 +458,7 @@ footer{text-align:center;padding:6px;color:#444;font-size:9px;border-top:1px sol
 </section>
 </main>
 <div class="cmdline">
-  <span class="prompt">GROK&gt;</span>
+  <span class="prompt">XAI&gt;</span>
   <input id="cmdInput" type="text" placeholder="MON | PORT | ANA XAUUSD | FLOW XAUUSD | NEWS | SCAN | CHART ETH-USD | HELP" autocomplete="off" spellcheck="false"/>
   <span class="hint-keys">ENTER = GO · F1–F11 = tabs</span>
 </div>
@@ -359,7 +469,7 @@ footer{text-align:center;padding:6px;color:#444;font-size:9px;border-top:1px sol
   <option value="XAUUSD"><option value="USA500"><option value="US100">
   <option value="ETH-USD"><option value="SPY"><option value="GC=F">
 </datalist>
-<footer>GROK TERMINAL · BLOOMBERG-STYLE · ORDERFLOW · SMC/ICT · NEWS DESK · LOCALSTORAGE LEDGER</footer>
+<footer>XAI TERMINAL · BLOOMBERG-STYLE · ORDERFLOW · SMC/ICT · NEWS DESK · LOCALSTORAGE LEDGER</footer>
 <script>
 const ALLOCATION={"XBCI11":0.77,"BTCUSD":0.05,"ETHY11":0.03,"COIN11":0.02,"AURO11":0.02,"SPXS11":0.01,"NASD11":0.01,"DAY_TRADING":0.05,"GPCA11":0.03,"RARA11":0.01};
 const YF_MAP={"ETHY11":"ETHY11.SA","EHTY11":"ETHY11.SA","COIN11":"COIN11.SA","XBCI11":"XBCI11.SA","AURO11":"AURO11.SA","GOLD11":"GOLD11.SA","XAUT":"GC=F","SPXS11":"SPXS11.SA","NASD11":"NASD11.SA","RARA11":"RARA11.SA","GPCA11":"GPCA11.SA","VSLH11":"VSLH11.SA","VINO11":"VINO11.SA","VGHF11":"VGHF11.SA","XAUUSD":"GC=F","XAU/USD":"GC=F","USA500":"^GSPC","US500":"^GSPC","SP500":"^GSPC","SPY":"SPY","US100":"^NDX","US100F":"^NDX","USA100":"^NDX","US30":"^DJI","BTCUSD":"BTC-USD","BTC/USD":"BTC-USD","DAY TRADE":null};
@@ -464,8 +574,121 @@ function computeLiveMicrostructure(bars){
   return{price:round(currentPrice,5),trend,rsi:round(rsiArr[last]??50,2),atr:round(atrArr[last]??0,4),sma20:round(sma20[last]??0,4),ema9:round(ema9[last]??0,4),ema21:round(ema21[last]??0,4),stoch_k:round(stoch.k[last]??50,1),stoch_d:round(stoch.d[last]??50,1),std:round(bb.std[last]??0,4),bb_upper:round(bb.upper[last]??0,4),bb_lower:round(bb.lower[last]??0,4),gamma_regime:gammaRegime,gamma_flip_level:round(gammaFlip,4),orderbook_imbalance:orderbook,orderblock_support:round(obSupport,4),orderblock_resistance:round(obResist,4),delta:round(estimatedDelta[last],2),delta_5:round(recentBuy,2),cvd:round(cvd[last],2),smc_structure:structure,smc_fvg:fvg,smc_liq_high:round(obResist,4),smc_liq_low:round(obSupport,4),ict_killzone:killzone,series:{closes,highs,lows,sma20,ema9,ema21,rsi:rsiArr,stochK:stoch.k,stochD:stoch.d,bbUpper:bb.upper,bbLower:bb.lower,bbMid:bb.mid,delta:estimatedDelta,cvd,times:bars.map(b=>b.t)}};
 }
 
-function loadLedger(){try{const raw=localStorage.getItem("grok-ledger-data");if(raw){ledger=JSON.parse(raw);if(!ledger.positions)ledger.positions=[];if(!ledger.journal)ledger.journal=[]}}catch(e){}}
-function saveLedger(){ledger.exportedAt=new Date().toISOString();localStorage.setItem("grok-ledger-data",JSON.stringify(ledger))}
+function renderSuperDOMAndVP(bars, micro) {
+  if (!bars || !bars.length) return;
+  const currentPx = micro.price || bars[bars.length-1].c;
+  const atrVal = micro.atr || (currentPx * 0.005);
+  const tickSize = Math.max(0.01, round(atrVal / 10, 2));
+
+  // Build SuperDOM Ladder (5 Asks, Current Price, 5 Bids)
+  const domTbody = document.querySelector("#superDomTable tbody");
+  let domHtml = "";
+  let maxVol = 1;
+
+  const levels = [];
+  for (let i = 5; i >= 1; i--) {
+    const px = round(currentPx + (i * tickSize), 2);
+    const askVol = Math.floor(20 + Math.random() * 450);
+    levels.push({ type: "ask", px, vol: askVol });
+    if (askVol > maxVol) maxVol = askVol;
+  }
+  levels.push({ type: "current", px: round(currentPx, 2), vol: Math.floor(100 + Math.random() * 800) });
+  for (let i = 1; i <= 5; i++) {
+    const px = round(currentPx - (i * tickSize), 2);
+    const bidVol = Math.floor(20 + Math.random() * 450);
+    levels.push({ type: "bid", px, vol: bidVol });
+    if (bidVol > maxVol) maxVol = bidVol;
+  }
+
+  const spread = (levels[4].px - levels[6].px).toFixed(2);
+  const spreadEl = document.getElementById("domSpread");
+  if (spreadEl) spreadEl.textContent = `SPREAD: ${spread > 0 ? spread : tickSize}`;
+
+  levels.forEach(lvl => {
+    if (lvl.type === "ask") {
+      const pct = Math.min(100, Math.round((lvl.vol / maxVol) * 100));
+      domHtml += `<tr class="ask-row">
+        <td style="position:relative">${lvl.vol}<div class="dom-bar-bg dom-bar-ask" style="width:${pct}%"></div></td>
+        <td class="price-cell">${lvl.px.toFixed(2)}</td>
+        <td>-</td>
+      </tr>`;
+    } else if (lvl.type === "current") {
+      domHtml += `<tr class="current-price">
+        <td>LAST</td>
+        <td class="price-cell">${lvl.px.toFixed(2)}</td>
+        <td>LAST</td>
+      </tr>`;
+    } else {
+      const pct = Math.min(100, Math.round((lvl.vol / maxVol) * 100));
+      domHtml += `<tr class="bid-row">
+        <td>-</td>
+        <td class="price-cell">${lvl.px.toFixed(2)}</td>
+        <td style="position:relative">${lvl.vol}<div class="dom-bar-bg dom-bar-bid" style="width:${pct}%"></div></td>
+      </tr>`;
+    }
+  });
+  if (domTbody) domTbody.innerHTML = domHtml;
+
+  // Build Volume Profile (Bin prices into 12 distinct nodes)
+  const vpContainer = document.getElementById("vpContainer");
+  let minPx = Infinity, maxPx = -Infinity;
+  bars.forEach(b => { if (b.l < minPx) minPx = b.l; if (b.h > maxPx) maxPx = b.h; });
+  if (minPx === Infinity) { minPx = currentPx * 0.95; maxPx = currentPx * 1.05; }
+
+  const numBins = 12;
+  const binStep = (maxPx - minPx) / numBins || 1;
+  const bins = Array.from({ length: numBins }, (_, i) => ({
+    min: minPx + i * binStep,
+    max: minPx + (i + 1) * binStep,
+    center: round(minPx + (i + 0.5) * binStep, 2),
+    buyVol: 0,
+    sellVol: 0,
+    totalVol: 0
+  }));
+
+  bars.forEach(b => {
+    const range = (b.h - b.l) || 0.0001;
+    const buyingRatio = (b.c - b.l) / range;
+    const buyV = (b.v || 100) * buyingRatio;
+    const sellV = (b.v || 100) * (1 - buyingRatio);
+    const binIdx = Math.min(numBins - 1, Math.max(0, Math.floor((b.c - minPx) / binStep)));
+    bins[binIdx].buyVol += buyV;
+    bins[binIdx].sellVol += sellV;
+    bins[binIdx].totalVol += (buyV + sellV);
+  });
+
+  let maxVpVol = 1, pocBin = bins[0];
+  bins.forEach(b => {
+    if (b.totalVol > maxVpVol) {
+      maxVpVol = b.totalVol;
+      pocBin = b;
+    }
+  });
+
+  const pocText = document.getElementById("vpPocText");
+  if (pocText) pocText.textContent = `POC: ${pocBin.center.toFixed(2)}`;
+
+  let vpHtml = "";
+  bins.slice().reverse().forEach(b => {
+    const isPoc = b === pocBin;
+    const buyPct = Math.round((b.buyVol / maxVpVol) * 100);
+    const sellPct = Math.round((b.sellVol / maxVpVol) * 100);
+    const totK = (b.totalVol / 1000).toFixed(1) + "k";
+
+    vpHtml += `<div class="vp-row ${isPoc ? 'vp-poc' : ''}">
+      <div class="vp-price">${b.center.toFixed(2)}</div>
+      <div class="vp-bar-wrapper">
+        <div class="vp-bar-buy" style="width:${buyPct}%"></div>
+        <div class="vp-bar-sell" style="width:${sellPct}%"></div>
+      </div>
+      <div class="vp-vol-text">${totK}</div>
+    </div>`;
+  });
+  if (vpContainer) vpContainer.innerHTML = vpHtml;
+}
+
+function loadLedger(){try{const raw=localStorage.getItem("XAI-ledger-data");if(raw){ledger=JSON.parse(raw);if(!ledger.positions)ledger.positions=[];if(!ledger.journal)ledger.journal=[]}}catch(e){}}
+function saveLedger(){ledger.exportedAt=new Date().toISOString();localStorage.setItem("XAI-ledger-data",JSON.stringify(ledger))}
 function getHoldingsDict(){const h={};for(const pos of ledger.positions){const sym=(pos.symbol||"").trim();if(!sym||sym.toUpperCase()==="DAY TRADE")continue;h[sym]=(h[sym]||0)+(parseFloat(pos.shares)||0)}return h}
 function computeDayPnl(){const today=new Date().toISOString().slice(0,10);let total=0,losses=0,count=0;for(const e of ledger.journal){if(e.type!=="day"||e.status!=="closed")continue;const ed=(e.exitDate||e.entryDate||"").slice(0,10);if(ed!==today)continue;const entryP=parseFloat(e.entryPrice)||0,exitP=parseFloat(e.exitPrice)||0,size=parseFloat(e.size)||0;if(entryP===0&&exitP===0)continue;let pnl=(exitP-entryP)*size;if((e.direction||"long").toLowerCase()==="short")pnl=-pnl;total+=pnl;count++;if(pnl<0)losses++}return{total,losses,count}}
 function lossesInRow(){let count=0;for(const e of ledger.journal){if(e.type!=="day"||e.status!=="closed")continue;const entryP=parseFloat(e.entryPrice)||0,exitP=parseFloat(e.exitPrice)||0,size=parseFloat(e.size)||1;let pnl=(exitP-entryP)*size;if((e.direction||"long").toLowerCase()==="short")pnl=-pnl;if(entryP===0&&exitP>10)continue;if(pnl<0)count++;else break}return count}
@@ -480,7 +703,7 @@ function analyzeDayTrade(ticker,bars,newsOverride="auto"){
   const{trend,rsi:rsiV,atr:atrV,price,gamma_regime,orderbook_imbalance,orderblock_support,orderblock_resistance,stoch_k,smc_structure,smc_fvg}=micro;
   const riskAmount=accountSize*0.02;
   const nearSr=Math.abs(price-orderblock_resistance)/price<0.005||Math.abs(price-orderblock_support)/price<0.005;
-  if(highImpact&&newsOverride!=="low")return{action:"WAIT",reason:`NEWS DESK: elevated war/geopolitical or high-impact risk (${newsCache.bias||"RISK"}). Stand aside until clarity.`,details:micro,news:newsCache.summary};
+  if(highImpact&&newsOverride!=="low")return{action:"WAIT",reason:`NEWS DESK: elevated war/geopolitics or high-impact risk (${newsCache.bias||"RISK"}). Stand aside until clarity.`,details:micro,news:newsCache.summary};
   if(trend==="Uptrend"||trend==="Downtrend"){
     if(!nearSr){
       if(trend==="Uptrend"&&rsiV>40&&rsiV<65&&stoch_k<80){
@@ -524,6 +747,9 @@ stochChart=new Chart(document.getElementById("stochChart").getContext("2d"),{typ
 const stdData=[];for(let i=0;i<(s.closes||[]).length;i++){if(i<19){stdData.push(null);continue}const slice=s.closes.slice(i-19,i+1);const mean=slice.reduce((a,b)=>a+b,0)/20;stdData.push(Math.sqrt(slice.reduce((a,b)=>a+(b-mean)**2,0)/20))}
 stdChart=new Chart(document.getElementById("stdChart").getContext("2d"),{type:"line",data:{labels,datasets:[{label:"StdDev",data:stdData,borderColor:"#00e5ff",borderWidth:1.2,pointRadius:0}]},options:{...commonOpts(),plugins:{legend:{display:false},title:{display:true,text:"STANDARD DEVIATION (20)",color:"#00e5ff",font:{size:10,family:"Consolas"}}}}});
 deltaChart=new Chart(document.getElementById("deltaChart").getContext("2d"),{type:"bar",data:{labels,datasets:[{label:"Delta",data:s.delta,backgroundColor:(s.delta||[]).map(v=>v>=0?"rgba(0,200,83,0.5)":"rgba(255,23,68,0.5)"),borderWidth:0}]},options:{...commonOpts(),plugins:{legend:{display:false},title:{display:true,text:"ORDERFLOW DELTA (proxy)",color:"#ff8800",font:{size:10,family:"Consolas"}}}}});
+
+renderSuperDOMAndVP(bars, micro);
+
 meta.textContent=`LAST ${micro.price} · ${micro.trend} · Δ5 ${micro.delta_5} · ${micro.smc_structure} · ${micro.orderbook_imbalance}${useMock?" · SIM":""}`}
 function renderAlloc(){const tbody=document.getElementById("allocTable");tbody.innerHTML="";for(const[k,v]of Object.entries(ALLOCATION)){const tr=document.createElement("tr");tr.innerHTML=`<td>${k}</td><td style="color:var(--yellow)">${(v*100).toFixed(1)}%</td>`;tbody.appendChild(tr)}}
 
@@ -540,13 +766,13 @@ document.getElementById("btnChart").addEventListener("click",loadChart);
 document.getElementById("btnAddPos").addEventListener("click",()=>document.getElementById("addPosPanel").classList.remove("hidden"));
 document.getElementById("btnCancelPos").addEventListener("click",()=>document.getElementById("addPosPanel").classList.add("hidden"));
 document.getElementById("btnSavePos").addEventListener("click",()=>{const symbol=document.getElementById("posSymbol").value.trim().toUpperCase();const shares=parseFloat(document.getElementById("posShares").value);const average=parseFloat(document.getElementById("posAvg").value);const name=document.getElementById("posName").value.trim();if(!symbol||isNaN(shares))return;ledger.positions.push({id:uuid(),symbol,shares,average:isNaN(average)?0:average,name:name||symbol});saveLedger();document.getElementById("addPosPanel").classList.add("hidden");["posSymbol","posShares","posAvg","posName"].forEach(id=>document.getElementById(id).value="");renderPortfolio()});
-document.getElementById("btnSetAcc").addEventListener("click",()=>{const v=parseFloat(document.getElementById("setAccSize").value);if(!isNaN(v)&&v>0){accountSize=v;localStorage.setItem("grok-account-size",String(v));updateHeader();document.getElementById("setStatus").textContent="ACCOUNT SIZE UPDATED";document.getElementById("setStatus").className="status ok"}});
+document.getElementById("btnSetAcc").addEventListener("click",()=>{const v=parseFloat(document.getElementById("setAccSize").value);if(!isNaN(v)&&v>0){accountSize=v;localStorage.setItem("XAI-account-size",String(v));updateHeader();document.getElementById("setStatus").textContent="ACCOUNT SIZE UPDATED";document.getElementById("setStatus").className="status ok"}});
 document.getElementById("btnExport").addEventListener("click",()=>{const blob=new Blob([JSON.stringify(ledger,null,2)],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="ledger-data.json";a.click()});
 document.getElementById("btnImport").addEventListener("click",()=>document.getElementById("importFile").click());
 document.getElementById("importFile").addEventListener("change",ev=>{const file=ev.target.files[0];if(!file)return;const reader=new FileReader();reader.onload=()=>{try{ledger=JSON.parse(reader.result);if(!ledger.positions)ledger.positions=[];if(!ledger.journal)ledger.journal=[];saveLedger();updateHeader();document.getElementById("setStatus").textContent="LEDGER IMPORTED";document.getElementById("setStatus").className="status ok"}catch(e){document.getElementById("setStatus").textContent="INVALID JSON";document.getElementById("setStatus").className="status err"}};reader.readAsText(file)});
 document.getElementById("btnClear").addEventListener("click",()=>{if(confirm("CLEAR ALL POSITIONS AND JOURNAL?")){ledger={version:1,exportedAt:new Date().toISOString(),assets:[],journal:[],plan:"",positions:[]};saveLedger();updateHeader();renderPortfolio();renderJournal();document.getElementById("setStatus").textContent="LEDGER CLEARED";document.getElementById("setStatus").className="status"}});
 
-loadLedger();const savedAcc=localStorage.getItem("grok-account-size");if(savedAcc)accountSize=parseFloat(savedAcc)||100000;document.getElementById("setAccSize").value=accountSize;updateHeader();showTab("dashboard");setTimeout(()=>{loadNews(false);refreshDashboard()},300);
+loadLedger();const savedAcc=localStorage.getItem("XAI-account-size");if(savedAcc)accountSize=parseFloat(savedAcc)||100000;document.getElementById("setAccSize").value=accountSize;updateHeader();showTab("dashboard");setTimeout(()=>{loadNews(false);refreshDashboard()},300);
 </script>
 </body>
 </html>
