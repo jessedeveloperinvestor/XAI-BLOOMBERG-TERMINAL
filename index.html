@@ -248,7 +248,7 @@ footer{text-align:center;padding:6px;color:#444;font-size:9px;border-top:1px sol
     <div class="panel-hd">ORDERFLOW · DELTA · ORDERBOOK · SMC / ICT</div>
     <div class="panel-body">
       <div class="form-row">
-        <div><label>Ticker</label><input id="flowTicker" value="BTC-USD" list="tickerList"/></div>
+        <div><label>Ticker</label><input id="flowTicker" value="XAUUSD" list="tickerList"/></div>
         <div style="display:flex;align-items:flex-end"><button class="btn go" id="btnFlow">GO  LOAD FLOW</button></div>
       </div>
       <div id="flowOut" class="mt-1"></div>
@@ -309,7 +309,7 @@ footer{text-align:center;padding:6px;color:#444;font-size:9px;border-top:1px sol
     <div class="panel-hd">MULTI-PANEL CHART — PRICE · STOCH · STD DEV · DELTA <span class="right" id="chartMeta">—</span></div>
     <div class="panel-body">
       <div class="form-row">
-        <div><label>Ticker</label><input id="chartTicker" value="BTC-USD" list="tickerList"/></div>
+        <div><label>Ticker</label><input id="chartTicker" value="XAUUSD" list="tickerList"/></div>
         <div><label>Period</label><select id="chartPeriod"><option value="5d">5D</option><option value="1mo" selected>1M</option><option value="3mo">3M</option></select></div>
         <div><label>Interval</label><select id="chartInterval"><option value="15m">15M</option><option value="1h" selected>1H</option><option value="1d">1D</option></select></div>
         <div style="display:flex;align-items:flex-end"><button class="btn go" id="btnChart">GO  CHART</button></div>
@@ -349,7 +349,7 @@ footer{text-align:center;padding:6px;color:#444;font-size:9px;border-top:1px sol
 </main>
 <div class="cmdline">
   <span class="prompt">GROK&gt;</span>
-  <input id="cmdInput" type="text" placeholder="MON | PORT | ANA XAUUSD | FLOW BTC-USD | NEWS | SCAN | CHART ETH-USD | HELP" autocomplete="off" spellcheck="false"/>
+  <input id="cmdInput" type="text" placeholder="MON | PORT | ANA XAUUSD | FLOW XAUUSD | NEWS | SCAN | CHART ETH-USD | HELP" autocomplete="off" spellcheck="false"/>
   <span class="hint-keys">ENTER = GO · F1–F11 = tabs</span>
 </div>
 <datalist id="tickerList">
