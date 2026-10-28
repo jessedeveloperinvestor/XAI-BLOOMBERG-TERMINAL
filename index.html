@@ -478,6 +478,7 @@ const CORE_TICKERS=Object.keys(ALLOCATION).filter(k=>k!=="DAY_TRADING").concat([
 let ledger={version:1,exportedAt:new Date().toISOString(),assets:[],journal:[],plan:"",positions:[]};
 let accountSize=100000,prices={},priceChart=null,stochChart=null,stdChart=null,deltaChart=null,useMock=false;
 let newsCache={global:[],brazil:[],war:[],summary:null,bias:"NEUTRAL",fetchedAt:0};
+let currentChartBars=null,currentChartMicro=null,superDomInterval=null;
 
 function toYf(symbol){if(!symbol)return symbol;const s=symbol.trim().toUpperCase();if(YF_MAP[s]!==undefined)return YF_MAP[s]||s;if(s.includes(".")||s.startsWith("^")||s.endsWith("=X")||s.endsWith("-USD"))return s;if(s.endsWith("11")||s.endsWith("4")||s.endsWith("3"))return s+".SA";return s}
 function uuid(){return crypto.randomUUID?crypto.randomUUID():"id-"+Date.now()+"-"+Math.random().toString(36).slice(2)}
@@ -576,21 +577,9 @@ function computeLiveMicrostructure(bars){
 
 function renderSuperDOMAndVP(bars, micro) {
   if (!bars || !bars.length) return;
-  // Simulate live price tick: small random walk around last known price
-  let currentPx = micro.price || bars[bars.length-1].c;
+  const currentPx = micro.price || bars[bars.length-1].c;
   const atrVal = micro.atr || (currentPx * 0.005);
   const tickSize = Math.max(0.01, round(atrVal / 10, 2));
-  // Jitter price by up to ~0.4 of a tick (realistic for liquid instruments)
-  const jitter = (Math.random() - 0.5) * tickSize * 0.8;
-  currentPx = round(currentPx + jitter, 5);
-  // Persist the new last price so subsequent updates walk from here
-  if (micro) micro.price = currentPx;
-  if (currentChartMicro) currentChartMicro.price = currentPx;
-  // Also keep the chart meta line roughly in sync
-  const metaEl = document.getElementById("chartMeta");
-  if (metaEl && metaEl.textContent.startsWith("LAST ")) {
-    metaEl.textContent = metaEl.textContent.replace(/LAST [\d.]+/, "LAST " + currentPx);
-  }
 
   // Build SuperDOM Ladder (5 Asks, Current Price, 5 Bids)
   const domTbody = document.querySelector("#superDomTable tbody");
@@ -739,7 +728,7 @@ function longTermAdvice(holdings,priceMap){const advice=[];let totalValue=0;for(
 
 function updateHeader(){const{total}=computeDayPnl();const gate=canTradeToday();document.getElementById("accSize").textContent=fmt(accountSize,0);const pnlEl=document.getElementById("dayPnl");pnlEl.textContent=fmt(total);pnlEl.className=total>=0?"pos":"neg";const st=document.getElementById("tradeStatus");st.textContent=gate.ok?"OK":"STOPPED";st.className=gate.ok?"pos":"neg";document.getElementById("dataMode").textContent=useMock?"SIM":"LIVE";document.getElementById("dataMode").className=useMock?"neg":"pos"}
 function updateTickerTape(rows){const el=document.getElementById("tickerTape");if(!rows||!rows.length)return;let html="";for(let pass=0;pass<2;pass++){for(const r of rows){const cls=r.trend==="Uptrend"?"up":r.trend==="Downtrend"?"dn":"";html+=`<span class="item"><span class="sym">${r.t}</span> <span class="px">${r.price!=null?fmt(r.price,2):"—"}</span> <span class="${cls}">${r.trend==="Uptrend"?"▲":r.trend==="Downtrend"?"▼":"●"}</span></span>`}}el.innerHTML=html}
-function showTab(name){document.querySelectorAll(".tab").forEach(t=>t.classList.add("hidden"));document.getElementById("tab-"+name).classList.remove("hidden");document.querySelectorAll("#nav button").forEach(b=>{b.classList.toggle("active",b.dataset.tab===name)});const modeMap={dashboard:"MONITOR",portfolio:"PORTFOLIO",rebalance:"REBALANCE",analysis:"ANALYSIS",scan:"SCAN",flow:"ORDERFLOW",news:"NEWS DESK",journal:"JOURNAL",log:"LOG TRADE",chart:"CHART",settings:"SETTINGS"};document.getElementById("bbMode").textContent=modeMap[name]||name.toUpperCase();if(name==="journal")renderJournal();if(name==="portfolio")renderPortfolio();if(name==="settings")renderAlloc();if(name==="news")loadNews(false)}
+function showTab(name){document.querySelectorAll(".tab").forEach(t=>t.classList.add("hidden"));document.getElementById("tab-"+name).classList.remove("hidden");document.querySelectorAll("#nav button").forEach(b=>{b.classList.toggle("active",b.dataset.tab===name)});const modeMap={dashboard:"MONITOR",portfolio:"PORTFOLIO",rebalance:"REBALANCE",analysis:"ANALYSIS",scan:"SCAN",flow:"ORDERFLOW",news:"NEWS DESK",journal:"JOURNAL",log:"LOG TRADE",chart:"CHART",settings:"SETTINGS"};document.getElementById("bbMode").textContent=modeMap[name]||name.toUpperCase();if(name==="journal")renderJournal();if(name==="portfolio")renderPortfolio();if(name==="settings")renderAlloc();if(name==="news")loadNews(false);if(name==="chart"){if(currentChartBars&&currentChartMicro){if(superDomInterval)clearInterval(superDomInterval);superDomInterval=setInterval(()=>{if(document.getElementById("tab-chart").classList.contains("hidden"))return;renderSuperDOMAndVP(currentChartBars,currentChartMicro);},5000);renderSuperDOMAndVP(currentChartBars,currentChartMicro)}}else if(superDomInterval){clearInterval(superDomInterval);superDomInterval=null}}
 document.addEventListener("keydown",e=>{if(e.target.tagName==="INPUT"||e.target.tagName==="SELECT"||e.target.tagName==="TEXTAREA"){if(e.key!=="Escape")return}const map={F1:"dashboard",F2:"portfolio",F3:"rebalance",F4:"analysis",F5:"scan",F6:"flow",F7:"news",F8:"journal",F9:"log",F10:"chart",F11:"settings"};if(map[e.key]){e.preventDefault();showTab(map[e.key])}});
 document.getElementById("cmdInput").addEventListener("keydown",e=>{if(e.key!=="Enter")return;const raw=e.target.value.trim();if(!raw)return;const parts=raw.toUpperCase().split(/\s+/);const cmd=parts[0];e.target.value="";if(cmd==="MON"||cmd==="MONITOR"||cmd==="DASH"){showTab("dashboard");refreshDashboard()}else if(cmd==="PORT"||cmd==="PORTFOLIO")showTab("portfolio");else if(cmd==="REB"||cmd==="REBALANCE"){showTab("rebalance");doRebalance()}else if(cmd==="ANA"||cmd==="ANALYZE"){showTab("analysis");if(parts[1])document.getElementById("anaTicker").value=parts[1];doAnalyze()}else if(cmd==="SCAN"){showTab("scan");doScan()}else if(cmd==="FLOW"||cmd==="OF"){showTab("flow");if(parts[1])document.getElementById("flowTicker").value=parts[1];loadFlow()}else if(cmd==="NEWS"){showTab("news");loadNews(true)}else if(cmd==="JRN"||cmd==="JOURNAL")showTab("journal");else if(cmd==="LOG")showTab("log");else if(cmd==="CHART"){showTab("chart");if(parts[1])document.getElementById("chartTicker").value=parts[1];loadChart()}else if(cmd==="HELP"||cmd==="?")alert("COMMANDS:\nMON PORT REB ANA [T] SCAN FLOW [T] NEWS JRN LOG CHART [T] HELP");else{showTab("analysis");document.getElementById("anaTicker").value=parts[0];doAnalyze()}});
 
@@ -760,7 +749,15 @@ const stdData=[];for(let i=0;i<(s.closes||[]).length;i++){if(i<19){stdData.push(
 stdChart=new Chart(document.getElementById("stdChart").getContext("2d"),{type:"line",data:{labels,datasets:[{label:"StdDev",data:stdData,borderColor:"#00e5ff",borderWidth:1.2,pointRadius:0}]},options:{...commonOpts(),plugins:{legend:{display:false},title:{display:true,text:"STANDARD DEVIATION (20)",color:"#00e5ff",font:{size:10,family:"Consolas"}}}}});
 deltaChart=new Chart(document.getElementById("deltaChart").getContext("2d"),{type:"bar",data:{labels,datasets:[{label:"Delta",data:s.delta,backgroundColor:(s.delta||[]).map(v=>v>=0?"rgba(0,200,83,0.5)":"rgba(255,23,68,0.5)"),borderWidth:0}]},options:{...commonOpts(),plugins:{legend:{display:false},title:{display:true,text:"ORDERFLOW DELTA (proxy)",color:"#ff8800",font:{size:10,family:"Consolas"}}}}});
 
+currentChartBars=bars;currentChartMicro=micro;
 renderSuperDOMAndVP(bars, micro);
+
+// Auto-update SuperDOM (and VP) every 5 seconds while chart is active
+if(superDomInterval)clearInterval(superDomInterval);
+superDomInterval=setInterval(()=>{
+  if(document.getElementById("tab-chart").classList.contains("hidden"))return;
+  if(currentChartBars&&currentChartMicro)renderSuperDOMAndVP(currentChartBars,currentChartMicro);
+},5000);
 
 meta.textContent=`LAST ${micro.price} · ${micro.trend} · Δ5 ${micro.delta_5} · ${micro.smc_structure} · ${micro.orderbook_imbalance}${useMock?" · SIM":""}`}
 function renderAlloc(){const tbody=document.getElementById("allocTable");tbody.innerHTML="";for(const[k,v]of Object.entries(ALLOCATION)){const tr=document.createElement("tr");tr.innerHTML=`<td>${k}</td><td style="color:var(--yellow)">${(v*100).toFixed(1)}%</td>`;tbody.appendChild(tr)}}
