@@ -14,6 +14,13 @@ input,select,textarea{background:#000;border:1px solid #3d3d3d;color:var(--y);pa
 .card{border:1px solid var(--b);padding:8px}.card .v{font-size:15px;font-weight:700;color:var(--y)}.tag{padding:1px 6px;background:#222;font-size:10px;font-weight:700}
 .A-BUY,.A-BUY_SCALP{background:var(--g);color:#000}.A-SELL,.A-SELL_SCALP,.A-STOP{background:var(--r);color:#fff}.A-WAIT{background:#333}.A-IC{background:var(--a);color:#000}
 .ch{height:240px;margin-bottom:8px}.ni{border-bottom:1px solid #1a1a1a;padding:5px 0}.chip.on{background:var(--a);color:#000}.pre{white-space:pre-wrap;line-height:1.6}
+.cg{display:grid;grid-template-columns:200px 1fr 260px;gap:8px}@media(max-width:1000px){.cg{grid-template-columns:1fr}}
+.tag.gp{background:#003311;color:var(--g)}.tag.gn{background:#330011;color:var(--r)}
+.dt{font-size:10px}.dt td{padding:2px 4px;text-align:center}.bw{position:relative}.bw i{position:absolute;top:1px;bottom:1px;opacity:.28}
+.ar{color:var(--r)}.ar i{right:0;background:var(--r)}.bg{color:var(--g)}.bg i{left:0;background:var(--g)}
+tr.cur td{background:#3d3100;color:var(--y);font-weight:700}
+.vp{display:flex;align-items:center;gap:4px;font-size:9px;padding:1px 0}.vp b{width:52px;text-align:right;color:var(--m);font-weight:400}.vp div{flex:1;display:flex;height:11px;background:#080808}.vp.poc{background:#2b2200;outline:1px solid var(--y)}
+.tp{display:flex;gap:6px;font-size:10px;padding:2px 0;border-bottom:1px solid #141414}.tp span:first-child{color:var(--m);width:58px}.tp span:nth-child(2){width:62px;color:var(--y)}
 </style></head><body>
 <div class="top"><span>XAI LEDGER</span><span id="mode">WATCHLIST</span><span id="clk"></span></div>
 <div class="bar"><span>ACCT <b id="hAcc"></b></span><span>DAY P/L <b id="hPnl"></b></span><span>STATUS <b id="hSt"></b></span><span>NEWS <b id="hNews">—</b></span><span>DATA <b id="hData">—</b></span></div>
@@ -34,8 +41,18 @@ input,select,textarea{background:#000;border:1px solid #3d3d3d;color:var(--y);pa
 <div><label>Size</label><input id="jz" type="number" step="any" value="1"></div><div><label>Stop</label><input id="jsl" type="number" step="any"></div><div><label>Target</label><input id="jtp" type="number" step="any"></div><div><label>R:R</label><input id="jrr"></div></div>
 <label>Notes</label><textarea id="jn"></textarea><button class="btn" onclick="jSave()">Save</button><button class="btn s" onclick="$('jf').style.display='none'">Cancel</button></div><table id="jt2"></table></div></div></section>
 <section class="tab" id="t-stats"><div class="pn"><div class="hd">Journal analytics</div><div class="bd"><button class="btn" onclick="R.stats()">Refresh</button><div id="ssum" class="mut"></div><div class="row"><div><div class="ch"><canvas id="c1"></canvas></div></div><div><div class="ch"><canvas id="c2"></canvas></div></div><div><div class="ch"><canvas id="c3"></canvas></div></div><div><div class="ch"><canvas id="c4"></canvas></div></div><div><div class="ch"><canvas id="c5"></canvas></div></div></div></div></div></section>
-<section class="tab" id="t-chart"><div class="pn"><div class="hd">Chart · SMA · RSI · Delta <span id="cm" class="mut"></span></div><div class="bd"><div class="row"><div><label>Ticker</label><input id="ct" value="AAPL"></div><div><label>Period</label><select id="cp"><option>5d</option><option selected>1mo</option><option>3mo</option><option>1y</option></select></div><div><label>Interval</label><select id="ci"><option>15m</option><option>1h</option><option selected>1d</option></select></div></div><button class="btn" onclick="R.chart()">Chart</button>
-<div class="ch" style="height:280px"><canvas id="k1"></canvas></div><div class="ch" style="height:100px"><canvas id="k2"></canvas></div><div class="ch" style="height:100px"><canvas id="k3"></canvas></div></div></div></section>
+<section class="tab" id="t-chart"><div class="pn"><div class="hd">Chart desk <span id="cm" class="mut"></span></div><div class="bd">
+<div class="row"><div><label>Ticker</label><input id="ct" value="AAPL"></div><div><label>Period</label><select id="cp"><option>5d</option><option selected>1mo</option><option>3mo</option><option>1y</option></select></div><div><label>Interval</label><select id="ci"><option>15m</option><option>1h</option><option selected>1d</option></select></div></div>
+<button class="btn" onclick="R.chart()">Chart</button>
+<div class="card" style="margin:8px 0"><div class="mut">TOP 3 NEWS</div><div id="cn">—</div></div>
+<div class="card" style="margin-bottom:8px"><div class="mut">GAMMA REGIME</div><div id="gm">—</div></div>
+<div class="cg">
+<div><div class="hd">Times & trades <span class="mut">(sim)</span></div><div id="tp" style="max-height:520px;overflow-y:auto"></div></div>
+<div><div class="ch" style="height:280px"><canvas id="k1"></canvas></div><div class="ch" style="height:100px"><canvas id="k2"></canvas></div><div class="ch" style="height:100px"><canvas id="k3"></canvas></div></div>
+<div><div class="hd">SuperDOM <span class="mut" id="dsp">(sim)</span></div><table class="dt" id="dom"></table>
+<div class="hd" style="margin-top:8px">Volume profile <span class="mut" id="poc"></span></div><div id="vp"></div>
+<div class="hd" style="margin-top:8px">Gamma levels <span class="mut">(proxy)</span></div><table class="dt" id="gl"></table></div>
+</div></div></div></section>
 <section class="tab" id="t-plan"><div class="pn"><div class="hd">Trading plan</div><div class="bd"><div id="pr" class="pre"></div><textarea id="pe" style="display:none;min-height:300px"></textarea><button class="btn s" id="pb1" onclick="planEdit()">Edit</button><button class="btn" id="pb2" style="display:none" onclick="planSave()">Save</button></div></div></section>
 <section class="tab" id="t-set"><div class="pn"><div class="hd">Settings</div><div class="bd">
 <div class="row"><div><label>Account size</label><input id="sa" type="number"></div></div><button class="btn" onclick="S.acc=+$('sa').value||1e5;save();hdr()">Update</button>
@@ -58,11 +75,10 @@ function fake(s){let b=100;s=s.toUpperCase();if(s.includes('BTC'))b=67000;else i
 async function bars(sym,r='1mo',i='1d'){const k=sym+r+i;if(cache[k]&&Date.now()-cache[k].t<6e4)return cache[k].b;const u=`https://query1.finance.yahoo.com/v8/finance/chart/${ys(sym)}?range=${r}&interval=${i}`;
 for(const p of[x=>'https://corsproxy.io/?'+encodeURIComponent(x),x=>'https://api.allorigins.win/raw?url='+encodeURIComponent(x)]){try{const j=await(await fetch(p(u),{signal:AbortSignal.timeout(8000)})).json(),R0=j.chart.result[0],q=R0.indicators.quote[0],b=[];R0.timestamp.forEach((t,n)=>{if(q.close[n]!=null)b.push({t:t*1e3,o:q.open[n]??q.close[n],h:q.high[n],l:q.low[n],c:q.close[n],v:q.volume[n]||0})});if(b.length>5){mock=false;cache[k]={t:Date.now(),b};return b}}catch(e){}}mock=true;return fake(sym)}
 const last=async s=>{const b=await bars(s,'5d','1d');return b[b.length-1].c};
-/* indicators */
 const sma=(a,p)=>a.map((_,i)=>i<p-1?null:a.slice(i-p+1,i+1).reduce((x,y)=>x+y,0)/p);
 function rsi(c,p=14){const o=Array(c.length).fill(null);let g=0,l=0;for(let i=1;i<c.length;i++){const d=c[i]-c[i-1];if(i<=p){d>0?g+=d:l-=d;if(i==p){g/=p;l/=p;o[i]=100-100/(1+g/(l||1e-9))}}else{g=(g*(p-1)+Math.max(d,0))/p;l=(l*(p-1)+Math.max(-d,0))/p;o[i]=100-100/(1+g/(l||1e-9))}}return o}
 function micro(b){if(b.length<30)return null;const c=b.map(x=>x.c),h=b.map(x=>x.h),l=b.map(x=>x.l),n=c.length-1,s20=sma(c,20),r=rsi(c),dl=b.map(x=>(x.v||1)*(2*(x.c-x.l)/((x.h-x.l)||1e-4)-1));
-const atr=b.slice(-14).reduce((s,x,i,a)=>s+Math.max(x.h-x.l),0)/14,hh=Math.max(...h.slice(-14)),ll=Math.min(...l.slice(-14)),st=(c[n]-ll)/((hh-ll)||1)*100,sd=Math.sqrt(c.slice(-20).reduce((s,x)=>s+(x-s20[n])**2,0)/20);
+const atr=b.slice(-14).reduce((s,x)=>s+(x.h-x.l),0)/14,hh=Math.max(...h.slice(-14)),ll=Math.min(...l.slice(-14)),st=(c[n]-ll)/((hh-ll)||1)*100,sd=Math.sqrt(c.slice(-20).reduce((s,x)=>s+(x-s20[n])**2,0)/20);
 let cv=0;const cvd=dl.map(x=>cv+=x);const trend=c[n]>s20[n]&&s20[n]>s20[n-3]?'Uptrend':c[n]<s20[n]&&s20[n]<s20[n-3]?'Downtrend':'Sideways';
 const rh=Math.max(...h.slice(-10)),rl=Math.min(...l.slice(-10)),ph=Math.max(...h.slice(-20,-10)),pl=Math.min(...l.slice(-20,-10));
 let smc='RANGE';if(rh>ph&&c[n]>ph)smc='BULLISH BOS';else if(rl<pl&&c[n]<pl)smc='BEARISH BOS';else if(rh>ph&&c[n]<s20[n])smc='BEARISH CHOCH';else if(rl<pl&&c[n]>s20[n])smc='BULLISH CHOCH';
@@ -70,7 +86,6 @@ const fvg=l[n]>h[n-2]?'BULLISH FVG':h[n]<l[n-2]?'BEARISH FVG':'NONE',hr=new Date
 const rt=c.slice(-10).map((x,i,a)=>i?(x-a[i-1])/a[i-1]:0).slice(1),mu=rt.reduce((a,x)=>a+x,0)/rt.length,m2=rt.reduce((a,x)=>a+(x-mu)**2,0)/rt.length,m3=rt.reduce((a,x)=>a+(x-mu)**3,0)/rt.length,sk=m2?m3/m2**1.5:0;
 const d5=dl.slice(-5).reduce((a,x)=>a+x,0);
 return{price:c[n],trend,rsi:r[n]??50,atr,stoch:st,std:sd,sup:Math.min(...l.slice(-20)),res:Math.max(...h.slice(-20)),delta:dl[n],d5,cvd:cvd[n],smc,fvg,kz,gamma:sk>=0?'+Gamma':'-Gamma',ob:d5>0?'Bid pressure':'Ask pressure',s:{c,s20,r,dl,t:b.map(x=>x.t)}}}
-/* news */
 const BW='rally surge gain growth beat record peace ceasefire deal stimulus strong recovery'.split(' '),RW='war attack missile invasion crash plunge recession default sanction hike conflict crisis selloff fear escalation strike'.split(' ');
 const sc=t=>{t=t.toLowerCase();return BW.filter(w=>t.includes(w)).length-RW.filter(w=>t.includes(w)).length};
 let NC={fetched:0,bias:'NEUTRAL',score:0,war:0};
@@ -81,7 +96,6 @@ const [g,b,w]=await Promise.all([rss(F.g),rss(F.b),rss(F.w)]);let live=g.length+
 const M=t=>({title:t,score:sc(t)}),G=live?g:['Fed signals cautious path on rates','Tech leads equity rally','Oil firm on supply concerns'].map(M),B=live?b:['BCB holds Selic','Ibovespa climbs on commodities'].map(M),W=live?w:['Ceasefire talks continue amid clashes','Shipping routes remain disrupted'].map(M);
 const tot=[...G,...B,...W].reduce((a,x)=>a+x.score,0),ws=W.reduce((a,x)=>a+x.score,0);let bias='NEUTRAL';if(tot>=3)bias='BULLISH';else if(tot<=-3)bias='BEARISH';else if(ws<=-3)bias='RISK-OFF';
 NC={g:G,b:B,w:W,bias,score:tot,war:ws,live,fetched:Date.now()};$('hNews').textContent=bias;$('hNews').className=bias=='BULLISH'?'pos':bias=='NEUTRAL'?'':'neg';return NC}
-/* journal helpers */
 const pl=e=>{if(e.status!='closed'||e.exitPrice===''||e.exitPrice==null)return 0;const d=e.exitPrice-e.entryPrice;return(e.direction=='short'?-d:d)*(+e.size||1)};
 function dayPnl(){const t=new Date().toISOString().slice(0,10);let tot=0,n=0;S.journal.forEach(e=>{if(e.type=='day'&&e.status=='closed'&&(e.exitDate||e.entryDate||'').slice(0,10)==t){tot+=pl(e);n++}});return{tot,n}}
 function lossRow(){let c=0;for(const e of S.journal){if(e.type!='day'||e.status!='closed')continue;if(pl(e)<0)c++;else break}return c}
@@ -99,7 +113,6 @@ if(m.rsi>70&&m.stoch>75)return bs?{a:'WAIT',m,why:'Overbought scalp blocked by n
 return{a:'WAIT',m,why:`Sideways/neutral. SMC ${m.smc}. News ${NC.bias}`}}
 const card=(l,v,c='')=>`<div class="card"><div class="mut">${l}</div><div class="v ${c}">${v}</div></div>`;
 function microHtml(m){const k=[['Last',f(m.price,4)],['Trend',m.trend],['RSI',f(m.rsi)],['Stoch',f(m.stoch,1)],['ATR',f(m.atr,4)],['StdDev',f(m.std,4)],['Delta',f(m.delta,0)],['Delta5',f(m.d5,0)],['CVD',f(m.cvd,0)],['Orderbook',m.ob],['OB sup/res',f(m.sup,2)+' / '+f(m.res,2)],['Gamma',m.gamma],['SMC',m.smc],['FVG',m.fvg],['Killzone',m.kz]];return`<div class="row">${k.map(x=>card(x[0],x[1])).join('')}</div>`}
-/* renderers */
 const R={};let charts={};const mk=(id,cfg)=>{charts[id]?.destroy();charts[id]=new Chart($(id),cfg)};
 function hdr(){$('hAcc').textContent=f(S.acc,0);const d=dayPnl().tot;$('hPnl').textContent=f(d);$('hPnl').className=d>=0?'pos':'neg';const g=gate();$('hSt').textContent=g.ok?'OK':'STOPPED';$('hSt').className=g.ok?'pos':'neg';$('hData').textContent=mock?'SIM':'LIVE';$('sa').value=S.acc}
 R.watch=async()=>{$('wst').textContent='loading…';const rows=await Promise.all(S.assets.map(async a=>{const b=await bars(a.symbol,'1mo','1d'),m=micro(b),c=b[b.length-1].c,p=b[b.length-2]?.c||c;return{a,c,ch:(c-p)/p*100,m}}));
@@ -155,11 +168,32 @@ function allocSave(){document.querySelectorAll('[data-al]').forEach(i=>S.alloc[i
 function expo(){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(S,null,2)],{type:'application/json'}));a.download='xai-ledger.json';a.click()}
 $('imf').onchange=async e=>{try{S=Object.assign({},DEF,JSON.parse(await e.target.files[0].text()));save();R.set();$('sst').textContent='Imported';hdr()}catch(x){alert('Invalid JSON')}};
 function reset(){if(confirm('Reset everything?')){S=JSON.parse(JSON.stringify(DEF));save();R.set();hdr()}}
-/* nav */
 const TABS=[['watch','Watchlist'],['port','Portfolio'],['reb','Rebalance'],['ana','Analysis'],['scan','Scan'],['flow','Orderflow'],['news','News'],['jrn','Journal'],['stats','Analytics'],['chart','Chart'],['plan','Plan'],['set','Settings']];
 $('nav').innerHTML=TABS.map(t=>`<button data-t="${t[0]}">${t[1]}</button>`).join('');
 function go(t,sym){document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));$('t-'+t).classList.add('on');document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('on',b.dataset.t==t));$('mode').textContent=TABS.find(x=>x[0]==t)[1].toUpperCase();if(sym)$('ct').value=sym;if(['watch','port','news','jrn','stats','plan','set'].includes(t)||sym)R[t]()}
 $('nav').onclick=e=>{if(e.target.dataset.t)go(e.target.dataset.t)};
 setInterval(()=>$('clk').textContent=new Date().toLocaleString(),1000);
+/* ===== Chart desk: SuperDOM, volume profile, gamma, news, T&S ===== */
+let DK=null,tape=[],deskPx=0;
+function gammaLv(m){const c=m.s.c,s30=sma(c,30)[c.length-1]||m.price,pos=m.gamma=='+Gamma';
+return[['Call wall',m.res],['+2σ',m.price+2*m.std],['+1σ',m.price+m.std],['Gamma flip',s30*(pos?1.002:.998)],['Last',m.price],['−1σ',m.price-m.std],['Put wall',m.sup],['−2σ',m.price-2*m.std]].sort((a,b)=>b[1]-a[1])}
+function desk(){if(!DK||!$('t-chart').classList.contains('on'))return;const{b,m}=DK,tk=Math.max(.01,m.atr/10);deskPx+=(Math.random()-.5)*tk*.8;const px=deskPx,pos=m.gamma=='+Gamma';
+const pk=[['GLOBAL',NC.g?.[0]],['BRAZIL',NC.b?.[0]],['WAR',NC.w?.[0]]].filter(x=>x[1]);
+$('cn').innerHTML=`<b class="${NC.bias=='BULLISH'?'pos':NC.bias=='NEUTRAL'?'':'neg'}">${NC.bias}</b>`+pk.map(x=>`<div class="ni"><span class="tag">${x[0]}</span> ${esc(x[1].title)} <span class="${x[1].score>0?'pos':x[1].score<0?'neg':'mut'}">${x[1].score>0?'+BULL':x[1].score<0?'-BEAR':'FLAT'}</span></div>`).join('');
+$('gm').innerHTML=`<span class="tag ${pos?'gp':'gn'}">${pos?'POSITIVE GAMMA (+Γ)':'NEGATIVE GAMMA (−Γ)'}</span> <span class="mut">${pos?'dealers dampen moves → mean reversion':'dealers amplify moves → trend / volatility'}</span>`;
+$('gl').innerHTML='<tr><th>Level</th><th>Price</th><th>Dist</th></tr>'+gammaLv(m).map(x=>`<tr class="${x[0]=='Last'?'cur':''}"><td>${x[0]}</td><td>${f(x[1],2)}</td><td class="${x[1]>=px?'neg':'pos'}">${f((x[1]-px)/px*100,2)}%</td></tr>`).join('');
+const L=[];let mx=1;const rv=()=>{const v=20+Math.random()*450|0;mx=Math.max(mx,v);return v};
+for(let i=5;i>0;i--)L.push({k:'a',p:px+i*tk,v:rv()});L.push({k:'c',p:px});for(let i=1;i<=5;i++)L.push({k:'b',p:px-i*tk,v:rv()});
+$('dom').innerHTML='<tr><th>Ask vol</th><th>Price</th><th>Bid vol</th></tr>'+L.map(x=>x.k=='c'?`<tr class="cur"><td>LAST</td><td>${f(x.p,2)}</td><td>LAST</td></tr>`:x.k=='a'?`<tr><td class="bw ar">${x.v}<i style="width:${x.v/mx*100}%"></i></td><td class="ar">${f(x.p,2)}</td><td></td></tr>`:`<tr><td></td><td class="bg">${f(x.p,2)}</td><td class="bw bg">${x.v}<i style="width:${x.v/mx*100}%"></i></td></tr>`).join('');
+$('dsp').textContent='SPREAD '+f(2*tk,2)+' (sim)';
+const lo=Math.min(...b.map(x=>x.l)),hi=Math.max(...b.map(x=>x.h)),N=12,st=(hi-lo)/N||1,bn=Array.from({length:N},(_,i)=>({c:lo+(i+.5)*st,B:0,S:0}));
+b.forEach(x=>{const r=(x.c-x.l)/((x.h-x.l)||1e-4),i=Math.min(N-1,Math.max(0,Math.floor((x.c-lo)/st))),v=x.v||100;bn[i].B+=v*r;bn[i].S+=v*(1-r)});
+const tot=e=>e.B+e.S,mxv=Math.max(...bn.map(tot))||1,pc=bn.reduce((a,e)=>tot(e)>tot(a)?e:a);$('poc').textContent='POC '+f(pc.c,2);
+$('vp').innerHTML=bn.slice().reverse().map(e=>`<div class="vp ${e==pc?'poc':''}"><b>${f(e.c,2)}</b><div><span style="width:${e.B/mxv*100}%;background:#00c853"></span><span style="width:${e.S/mxv*100}%;background:#ff1744"></span></div></div>`).join('');
+for(let i=0;i<3;i++){const buy=Math.random()<(m.d5>0?.6:.4),big=Math.random()<.12;tape.unshift({t:new Date().toLocaleTimeString([],{hour12:false}),p:px+(Math.random()-.5)*tk*2,s:buy,z:big?100+Math.random()*400|0:1+Math.random()*80|0})}
+tape=tape.slice(0,40);$('tp').innerHTML=tape.map(x=>`<div class="tp"><span>${x.t}</span><span>${f(x.p,2)}</span><span class="${x.s?'pos':'neg'}" style="${x.z>=100?'font-weight:700':''}">${x.s?'BUY':'SELL'} ${x.z}</span></div>`).join('')}
+const _rc=R.chart;
+R.chart=async()=>{await _rc();const b=await bars($('ct').value.trim()||'AAPL',$('cp').value,$('ci').value),m=micro(b);await news();if(!m)return;DK={b,m};deskPx=m.price;tape=[];desk()};
+setInterval(desk,5000);
 hdr();go('watch');news();
 </script></body></html>
